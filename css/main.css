@@ -1,0 +1,347 @@
+/*Setup page layout with flex boxes*/
+html, body {
+	height: 100%;
+}
+
+#body-container {
+	display: flex;
+	flex-flow: column;
+	height: 100%;
+}
+
+#banner{
+	flex: 0 1 auto;
+	float:left;
+	height:50px;
+	width:100%;
+	background-color:black;
+	color: white;
+	border-bottom: 1px solid lightgrey;
+}
+
+#content-container {
+	overflow: hidden;
+	display: -webkit-flex;
+	-webkit-flex-flow: row wrap;
+	-webkit-flex: auto;
+	display: flex;
+	flex-flow: row wrap;
+	height: 100%; /*Workaround: Firefox doesn't handle the flex box height properly*/
+}
+
+#left-container {
+	flex: 1 1px;
+	z-index:20;
+	border-bottom: 1px solid white;
+
+	display: -webkit-flex;
+	-webkit-flex-flow: column wrap;
+	display:flex;
+	flex-flow: column wrap;
+}
+
+#roi-container {
+	flex: 1.5 1px;
+	display: -webkit-flex;
+	-webkit-flex-flow: row;
+	display: flex;
+	flex-flow: row;
+}
+
+#niftiAll{
+	flex: 2 1px;
+	background-color:black;
+}
+
+#inner-roi-container{
+	flex: 1 1px;
+	border-right: 1px solid grey;
+	display: -webkit-flex;
+	-webkit-flex-flow: column;
+	display: flex;
+	flex-flow: column;
+}
+
+#roi-details{
+	flex: 2 1px;
+}
+
+#roi-weightings-container{
+	flex: 1 1px;
+	border-top: 1px solid black;
+	overflow-y:auto;
+	position:relative;
+}
+
+#line-profile-container {
+	flex: 1 1px;
+	/*width:100%;
+	height:100%;*/
+	/*padding-left:25px;*/
+	background-color:lightgrey;
+	overflow-y:auto;
+}
+
+
+#graph-container {
+	flex: 1 1px;
+}
+
+#top-container{
+	flex: 1.75 1px;
+
+	display: -webkit-flex;
+	-webkit-flex-flow: row wrap;
+	display:flex;
+	flex-flow: row wrap;
+}
+
+
+/*Style the banner elements*/
+.banner-button {
+	float: right;
+	height: 100%;
+	padding-left: 20px;
+	padding-right: 20px;
+	border-left: 1px solid white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor:pointer;
+}
+
+.banner-button:hover {
+	background-color: steelblue;
+}
+
+.banner-listbox {
+	display: none;
+	position: absolute;
+	right: 0px;
+	top: 50px;
+	background-color: black;
+	color: white;
+	border: 1px solid lightgrey;
+	z-index: 20;
+	cursor: pointer;
+}
+
+.banner-listitem {
+	display: block;
+	padding: 7px 5px 7px 5px;
+	border-bottom: 1px dashed lightgrey;
+}
+
+.banner-listitem:hover {
+	background-color: steelblue;
+}
+
+tspan{
+	font: 300 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.node {
+  font: 300 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #747474;
+}
+
+.node:hover {
+  fill: #777;
+}
+
+.link {
+  stroke: steelblue;
+  fill: none;
+  stroke-width:1.5px;
+}
+
+.link:hover {
+	stroke: black !important;
+	stroke-width: 2 !important;
+	opacity: 1 !important;
+}
+
+.node:hover,
+.node--source, .node--target
+.node2--source, .node2--target
+{
+  font-weight: 700;
+}
+
+.node--source {
+  fill: #2ca02c;
+}
+
+.node2--source {
+	fill: #a0079c;
+}
+
+.node--target {
+  fill: #d62728;
+}
+
+.node2--target {
+	fill: #ffdd22;
+}
+
+.node--filtered {
+	opacity: 0.2;
+	text-decoration: line-through;
+}
+
+.talairachGroupNode {
+	fill: steelblue; /*#0e0e0e;*/
+	text-decoration: underline;
+}
+
+.link--source, .link--target {
+  stroke-width: 3px;
+  stroke: #2ca02c !important;
+}
+
+.link2--source, .link2--target {
+	stroke-width: 3px;
+	stroke: #a0079c !important;
+}
+
+.cluster-image {
+	width: 135px;
+	height: 135px;
+	cursor: pointer;
+}
+.cluster-image:hover {
+	border: 1px solid blue;
+}
+
+.cell--selected{
+	stroke: black;
+	stroke-width:1.5px;
+}
+
+.row--mouseover,
+.column--mouseover{
+	stroke: grey;
+	stroke-width:0.5px;
+}
+
+.tooltip-background{
+	stroke: grey;
+	stroke-width:0.5px;
+	fill: white;
+}
+
+.axis path,
+.axis line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
+.subcontainer{
+	background-color: #000000;
+	float: left;
+	width: 33.3%;
+	height: 33%;
+	padding-top:3px;
+}
+
+#selectionPanel{
+	font: 300 12px  Courier, monospace;
+}
+
+.ui-slider-range{
+	opacity: 0.4;
+}
+
+#dragSelectMenu{
+	position:absolute;
+	width:150px;
+	display:none;
+	background-color:white;
+	border:1px solid grey;
+	box-shadow: 2px 2px 3px #888888;
+}
+
+#dragSelectMenu ul{
+	padding: 0px 10px;
+	margin: 0px;
+}
+#dragSelectMenu li{
+	list-style-type: none;
+	border-bottom: 0.5px solid lightgrey;
+	cursor: default;
+}
+#dragSelectMenu li:hover{
+	background-color:steelblue;
+	color:white;
+}
+.selection {
+	position: absolute;
+	border: 1px solid #89B;
+	background: #BCE;
+	background-color: #BEC;
+	border-color: #8B9;
+}
+.selected {
+	fill-opacity:0.6;
+	stroke: black;
+	stroke-width:1px;
+}
+
+tr:nth-child(even){
+	background-color:lightblue;
+}
+tr:nth-child(odd){
+	background-color:lightgrey;
+}
+tr:first-child{
+	font-weight: bold;
+	background-color: steelblue;
+}
+
+.splitSubjectLabel{
+	position:absolute;
+	top:10px;
+	left:10px;
+}
+
+.profile-graph{
+	background-color: white;
+}
+.profile-graph:hover {
+	border: 1px solid blue;
+}
+.profile-graph-selected {
+	border: 1px solid green;	
+}
+path {
+	stroke: steelblue;
+	stroke-width: 1;
+	fill: none;
+}
+.marker-stroke{
+	stroke-width: 5;
+	stroke: yellow;
+}
+
+.edge-mouseover{
+	stroke-width: 5;
+}
+
+.profile-axis {
+  shape-rendering: crispEdges;
+}
+
+.x-profile-axis line {
+  stroke: lightgrey;
+}
+
+.x-profile-axis .minor {
+  stroke-opacity: .5;
+}
+
+.x-profile-axis path, .y-profile-axis line, .y-profile-axis path {
+  fill: none;
+  stroke: #000;
+  stroke-opacity: .5;
+}

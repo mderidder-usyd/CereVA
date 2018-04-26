@@ -1,0 +1,187 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<title>CereVA</title>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+<!--Running from source-->
+<script type="text/javascript" src="lib/X-master/lib/google-closure-library/closure/goog/base.js"></script>
+<script type="text/javascript" src="lib/X-master/xtk-deps.js"></script>
+<script>
+  // include all used X-classes here
+  // this is only required when using the xtk-deps.js file
+  goog.require('X.renderer3D');
+  goog.require('X.renderer2D');
+  goog.require('X.mesh');
+  goog.require('X.volume');
+  goog.require('X.matrix');
+  goog.require('X.vector');
+</script>
+
+<script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+
+<script type="text/javascript" src="js/cereva.js"></script>
+<script type="text/javascript" src="js/brainbuilder.js"></script>
+<script type="text/javascript" src="js/graphbuilder.js"></script>
+<script type="text/javascript" src="js/parcellationutils.js"></script>
+<script type="text/javascript" src="js/navigationutils.js"></script>
+<script type="text/javascript" src="js/uiutils.js"></script>
+<script type="text/javascript" src="js/generalutils.js"></script>
+
+<script type="text/javascript" src="lib/really-simple-color-picker-master/jquery.colorPicker.min.js"></script>
+<script type="text/javascript" src="lib/canvas-to-blob.min.js"></script>
+<script type="text/javascript" src="lib/FileSaver.js"></script>
+<script type="text/javascript" src="lib/svg-crowbar-2.js"></script>
+
+<script src="lib/jquery.event.drag-2.2.js"></script>
+<script src="lib/jquery.event.drag.live-2.2.js"></script>
+
+<link rel="stylesheet" type="text/css" href="http://lessons.goxtk.com/07/demo.css" />
+<link rel="stylesheet" type="text/css" href="lib/really-simple-color-picker-master/colorPicker.css" />
+<link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+<body>
+	<div id="body-container">
+		<div id="banner">
+		  <h1 style="float:left;width:25%;height:100%;margin-top:0px;padding-left:20px;display:flex;align-items:center;"></h1>
+		  <div class="banner-button" onclick="$('#hierarchy-selector').toggle();">
+			  Hierarchy:&nbsp;<span id="active-hierarchy">CellType</span>
+		  </div>
+		  <div id="threshold-mode-selector" class="banner-button" onclick="toggleThresholdMode()">
+			  Threshold Mode:&nbsp;<span id="active-threshold-mode">Inside</span>
+		  </div>
+		  <div id="click-mode-selector" class="banner-button" onclick="toggleSelectionMode()">
+			  Selection Mode:&nbsp;<span id="active-click-mode">Single</span>
+		  </div>
+		  <div id="subject-selector" class="banner-button" onclick="toggleSelectionPanel()">
+			  Subject:&nbsp;<span id="active-subjects">None</span>
+		  </div>
+		</div>
+		<div id="parcellation-selector" class="banner-listbox">
+		  <ul style="padding-left:15px;padding-right:15px;">
+			  <li class="banner-listitem" onclick="loadParcellation('HarvardOxfordCortical');">Harvard Oxford Cortical</li>
+			  <li class="banner-listitem" onclick="loadParcellation('HarvardOxfordSubcortical')">Harvard Oxford Subcortical</li>
+			  <li class="banner-listitem" onclick="loadParcellation('JHUWhiteMatter')">JHU White Matter</li>
+			  <li class="banner-listitem" onclick="loadParcellation('JuelichHistological')">Juelich Histological</li>
+			  <li class="banner-listitem" onclick="loadParcellation('MNIStructural')">MNI Structural</li>
+			  <li class="banner-listitem" onclick="loadParcellation('Talairach')">Talairach</li>
+			  <li class="banner-listitem" onclick="loadParcellation('OxfordThalamus')">Oxford Thalamus</li>
+		  </ul>
+		</div>
+		<div id="hierarchy-selector" class="banner-listbox">
+			<ul style="padding-left:15px;padding-right:15px;">
+				<li class="banner-listitem" onclick="loadHierarchy('Hemisphere')">Hemisphere</li>
+				<li class="banner-listitem" onclick="loadHierarchy('Lobe')">Lobe</li>
+				<li class="banner-listitem" onclick="loadHierarchy('Gyrus')">Gyrus</li>
+				<li class="banner-listitem" onclick="loadHierarchy('TissueType')">Tissue Type</li>
+				<li class="banner-listitem" onclick="loadHierarchy('CellType')">Cell Type</li>
+			</ul>
+		</div>
+
+		<div id="content-container">
+			<div id="left-container">
+				<div id="roi-container">
+					<div id="niftiAll"></div>
+					<div id="inner-roi-container">
+						<div id="roi-details"></div>
+						<div id="roi-weightings-container" style="display:none;">
+							<div id="roi-weightings"></div>
+							<input type="button" onclick="saveWeightings()" value="Export Weights" style="position:absolute;bottom:1px;right:1px;" />
+						</div>
+					</div>
+				</div>
+
+				<div id="line-profile-container"></div>
+			</div>
+
+			<div id="graph-container">
+				<div id='graph' style='float: left; width: 100%; height: 100%; position:relative;'></div>
+				<div id='graph2' style='float: left; width: 50%; height: 50%; position: relative; display:none;'><input type='button' onclick='loadAuxiliaryGraph(2)' value='Add' style='position:absolute; left:50%; top:50%;' /></div>
+				<div id='graph3' style='float: left; width: 50%; height: 50%; position: relative; display:none;'><input type='button' onclick='loadAuxiliaryGraph(3)' value='Add' style='position:absolute; left:50%; top:50%;' /></div>
+				<div id='graph4' style='float: left; width: 50%; height: 50%; position: relative; display:none;'><input type='button' onclick='loadAuxiliaryGraph(4)' value='Add' style='position:absolute; left:50%; top:50%;' /></div>
+			</div>
+
+		</div>
+	</div>
+	<div id="niftiXcontainer" class="subcontainer" style="display:none">
+		<div id='niftiX' style="width:100%; height:100%; border: 1px solid red;"></div>
+	</div>
+	<div id="niftiYcontainer" class="subcontainer" style="display:none">
+		<div id='niftiY' style="width:100%; height:100%; border: 1px solid green;"></div>
+	</div>
+	<div id="niftiZcontainer" class="subcontainer" style="display:none">
+		<div id='niftiZ' style="width:100%; height:100%; border: 1px solid blue;"></div>
+	</div>
+	
+	<div id="correlation-range" style="display:none; position:absolute; top:60px; right:5%; width:40%; background-image:none;"> <!--gradient set by buckets-->
+		<div id="range-vals" style="position:absolute; top:0px; left:15px; z-index: 4; font-size:10pt;">0.70-1.00</div>
+		<div id="subject1-bins" style="float:left; width:100%; height: 50%; "></div>
+		<div id="subject2-bins" style="float:left; width:100%; height: 50%;"></div>
+	</div>
+	<button id="filter-edges-button" style="display:none; position:absolute; top:85px; left:55%;" onclick="filterEdges()">Filter edges</button>
+	<button id="add-marker-button" style="display:none; position:absolute; top:85px; right:5%;" onclick="addToMarker()">Add to marker</button>
+
+	<img id="settingsIcon" src="data/settings.png" style="position:absolute; top:55px; right:1%; width:25px; z-index:1" onclick="$('#settingsBox').toggle();" />
+	<div id="settingsBox" style="display:none; position:absolute; right:20px; top:85px; width: 300px; background-color:lightgrey; border: 2px solid darkgrey; z-index:200;">
+	<div style="display:none;">
+		<label for="bundle_cb">Bundle Edges?</label><input type="checkbox" id="bundle_cb" onclick="toggleEdgeBundling()" checked /><br />
+		<u>High Difference/Correlation</u><br />
+		Higher Subject 1: <input id="colour-high1" type="text" name="colour-high1" value="#3366FF" />
+		Higher Subject 2: <input id="colour-high2" type="text" name="colour-high2" value="#FF0000" />
+		<label for="lowdiff_cb"><u>Low Difference</u></label><input type="checkbox" id="lowdiff_cb" onclick="toggleLowThreshold()" /><br />
+		<input id="colour-low" type="text" name="colour-low" value="#FFFF00" />
+		<u>Outlier Fingerprints</u><br />
+		Positive: <input id="colour-positiveoutlier" type="text" name="colour-positiveoutlier" value="#33CCFF" />
+		Negative: <input id="colour-negativeoutlier" type="text" name="colour-negativeoutlier" value="#FFFF00" />
+		<br />
+	</div>
+	<label for="splitgraph_cb"><u>Split Graph</u></label><input type="checkbox" id="splitgraph_cb" onclick="toggleSplitGraph()" /><br />
+	<u>Graph Type</u>: <br />
+	<label for="radial_radio">Radial</label><input type="radio" id="radial_radio" name="graph_type_radio" onclick="currentGraphType=CIRCLE_GRAPH;buildGraph();" checked />
+	<label for="matrix_radio">Matrix</label><input type="radio" id="matrix_radio" name="graph_type_radio" onclick="currentGraphType=MATRIX_GRAPH;buildGraph();" />
+	<br />
+	<u>Homogeneity Type</u>: <br />
+	<label for="absolute_radio">Absolute</label><input type="radio" id="absolute_radio" name="homogneity_type_radio" onclick="homogeneityType=HOMOGENEITY_ABSOLUTE;buildGraph();" />
+	<label for="relative_radio">Relative</label><input type="radio" id="relative_radio" name="homogneity_type_radio" onclick="homogeneityType=HOMOGENEITY_RELATIVE;buildGraph();" checked />
+	<br />
+	<u>Marker Mode</u>: <br />
+	<label for="overlap_marker_radio">Overlap</label><input type="radio" id="overlap_marker_radio" name="marker_mode_radio" onclick="markerMode=MARKER_MODE_OVERLAP;buildGraph();" checked />
+	<label for="threshold_marker_radio">Threshold</label><input type="radio" id="threshold_marker_radio" name="marker_mode_radio" onclick="markerMode=MARKER_MODE_THRESHOLD;buildGraph();" />
+	<br />
+	</div>
+
+	<div id="selectionPanel" style="display:none; position:absolute; right:0px; top:0px; height:100%; width: 300px; background-color:white; border-left: 2px solid darkgrey; overflow:scroll; z-index:200;">
+		<div id="selectionList" style="padding:10px;">
+			<br /><b>Subjects:</b><br />
+		</div>
+	</div>
+	<div id="selectionButton" style="display:none; position:absolute; right:300px; top:45%; background-color:darkgrey; border: 1px solid lightgrey; border-top-left-radius:10px; border-bottom-left-radius:10px; cursor:pointer; z-index:201;"
+	   onclick="toggleSelectionPanel()">
+	<br />&gt;&gt;<br /><br />
+	</div>
+
+	<div id="meshOptionsPanel" style="display:none; position:absolute; left:0px; top:0px; height:100%; width: 300px; background-color:white; border-left: 2px solid darkgrey; overflow:scroll; z-index:101;">
+	<input type="checkbox" id="display_l_pial" onclick="toggleSurfaceMesh(0)" checked /><label for="display_l_pial">Display L Pial</label><br />
+	<input type="checkbox" id="display_r_pial" onclick="toggleSurfaceMesh(1)" checked /><label for="display_r_pial">Display R Pial</label><br />
+	</div>
+	<div id="meshOptionsButton" style="position:absolute; left:0px; top:45%; background-color:darkgrey; border: 1px solid lightgrey; border-top-right-radius:10px; border-bottom-right-radius:10px; cursor:pointer; z-index:101;" onclick="toggleMeshOptionsPanel()">
+	<br />&gt;&gt;<br /><br />
+	</div>
+
+	
+	<div id="loadingGif" style="position:absolute; right:25%; top:50%; display:none; z-index:100;">
+	<img src="data/ajax-loader.gif" />
+	</div>
+
+	<div id="circle_tooltip" style="display:none;position:absolute;background-color:white;border:1px solid black;border-radius:3px;"></div>
+
+
+	<div id="svgdownloaddiv">
+	<div id="svgdataurl"></div>
+	</div>
+</body>
+</html>
